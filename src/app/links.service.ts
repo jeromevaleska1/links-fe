@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { ToastrService } from 'ngx-toastr'
 const hostUrl = environment.host;
 
 const httpOptions = {
@@ -11,9 +12,17 @@ const httpOptions = {
 })
 export class LinksService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private toastr: ToastrService) { }
   async getLink(urlToShorten: string){
-    return this.http.post(`${hostUrl}/links/link`, {url: urlToShorten}, httpOptions).toPromise()
+    try{
+
+      const result = await this.http.post(`${hostUrl}/links/link`, {url: urlToShorten}, httpOptions).toPromise() 
+      return result;
+    }catch(err:any){
+      console.log(err.error.message)
+      this.toastr.error(err?.error?.message && err?.error?.message[0])
+      return Promise.reject(err)
+    }
   }
 
   async getUserInfo(){
